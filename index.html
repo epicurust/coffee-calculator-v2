@@ -2,33 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Coffee Brew Ratio Calculator</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Let's Make Coffee</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <button id="darkModeToggle">🌓 Toggle Dark Mode</button>
-  <h1 id="greeting">Welcome to the Coffee Calculator</h1>
+  <header>
+    <div id="greeting"></div>
+    <h1>Let’s Make Coffee</h1>
+  </header>
 
-  <div id="imageContainer">
-    <img id="introImage" class="time-image" src="" alt="Time of Day Coffee Image">
-  </div>
+  <section id="nameSection">
+    <label for="nameInput">What's your name?</label>
+    <input type="text" id="nameInput" maxlength="15" />
+    <button id="startButton">Start</button>
+  </section>
 
-  <input type="text" id="nameInput" placeholder="What's your name?" />
-  <button id="startButton">Start</button>
+  <main>
+    <section id="filterCalculator">
+      <h2>Filter Coffee Calculator</h2>
 
-  <div id="iconSection" class="section hidden">
-    <p>Select a brew method to get started:</p>
-    <div class="icon-container">
-      <img id="filterIcon" src="https://cdn-icons-png.flaticon.com/512/1951/1951776.png" alt="Filter">
-      <img id="espressoIcon" src="https://tse3.mm.bing.net/th/id/OIP.4RVzxeO7lISXPvTJj3P27QHaHa?rs=1&pid=ImgDetMain" alt="Espresso">
-    </div>
-  </div>
+      <label for="filterCoffee">Coffee (g):</label>
+      <input type="number" id="filterCoffee" />
 
-  <button id="backButton" class="hidden">← Back</button>
+      <label for="filterWater">Water (g):</label>
+      <input type="number" id="filterWater" />
 
-  <div id="filter" class="section hidden">
-    <h3>Filter Coffee Calculator</h3>
-    <label for="filterCoffee">Coffee Weight (g):</label>
-    <input type="number" id="filterCoffee">
-    <label for="filterWater">Or target water
+      <label for="filterPeople">People:</label>
+      <input type="number" id="filterPeople" />
+
+      <label>
+        <input type="checkbox" id="useCustomRatio" />
+        Use custom ratio
+      </label>
+      <input type="number" id="customRatio" placeholder="e.g. 63" />
+
+      <label for="flavourProfile">Flavour Profile:</label>
+      <select id="flavourProfile">
+        <option value="light">Light</option>
+        <option value="balanced">Balanced</option>
+        <option value="syrupy">Syrupy</option>
+        <option value="bold">Bold</option>
+      </select>
+
+      <button onclick="calculateFilter()">Calculate</button>
+      <div id="filterResult"></div>
+      <div id="filterHistory"></div>
+    </section>
+
+    <section id="espressoCalculator">
+      <h2>Espresso Calculator</h2>
+
+      <label for="espressoDose">Dose (g):</label>
+      <input type="number" id="espressoDose" />
+
+      <label for="espressoRatio">Ratio:</label>
+      <input type="number" id="espressoRatio" placeholder="e.g. 2 for 1:2" />
+
+      <label for="espressoTime">Shot Time (s):</label>
+      <input type="number" id="espressoTime" />
+
+      <label for="espressoYield">Actual Yield (g):</label>
+      <input type="number" id="espressoYield" />
+
+      <label for="shotQuality">Taste Rating:</label>
+      <input type="range" id="shotQuality" min="1" max="3" value="2" />
+      <div id="qualityLabel">Balanced</div>
+
+      <button onclick="calculateEspresso()">Calculate</button>
+      <div id="espressoResult"></div>
+      <div id="previousEspresso"></div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
