@@ -2,11 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const greeting = document.getElementById('greeting');
   const nameInput = document.getElementById('nameInput');
   const startButton = document.getElementById('startButton');
-
   const qualitySlider = document.getElementById('shotQuality');
   const qualityLabel = document.getElementById('qualityLabel');
 
-  // Greeting Logic
+  // Greeting logic
   startButton?.addEventListener('click', () => {
     const name = nameInput?.value.trim();
     if (!name) return;
@@ -15,13 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     greeting.innerHTML = `<span class="caps-title">${timeGreeting.toUpperCase()}</span><h1 class="script-title">${name}</h1>`;
   });
 
-  // Update taste rating label
+  // Taste slider label
   qualitySlider?.addEventListener('input', () => {
     const val = parseInt(qualitySlider.value);
     qualityLabel.textContent = val === 1 ? 'Sour' : val === 3 ? 'Bitter' : 'Balanced';
   });
 
-  // Filter Calculator
+  // Filter calculator
   window.calculateFilter = function () {
     const coffee = parseFloat(document.getElementById('filterCoffee').value);
     const water = parseFloat(document.getElementById('filterWater').value);
@@ -67,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('lastBrew', JSON.stringify({ output, time: now }));
   };
 
-  // Espresso Calculator
+  // Espresso calculator
   window.calculateEspresso = function () {
     const dose = parseFloat(document.getElementById('espressoDose').value);
     const ratio = parseFloat(document.getElementById('espressoRatio').value);
@@ -79,43 +78,4 @@ document.addEventListener('DOMContentLoaded', () => {
     const history = document.getElementById('previousEspresso');
 
     if (!isNaN(dose)) {
-      const targetYield = dose * ratio;
-      let output = `Target yield: ${targetYield.toFixed(1)}g.`;
-      if (!isNaN(time)) output += ` Shot time: ${time}s.`;
-      if (!isNaN(yieldActual)) {
-        const diff = yieldActual - targetYield;
-        output += ` Actual: ${yieldActual}g. Diff: ${diff >= 0 ? '+' : ''}${diff.toFixed(1)}g.`;
-      }
-      output += ` Taste: ${qualityText}.`;
-      result.innerHTML = output + "<br><em>Enjoy your espresso!</em>";
-
-      const log = {
-        dose,
-        ratio,
-        targetYield: targetYield.toFixed(1),
-        actual: yieldActual || 'N/A',
-        time: time || 'N/A',
-        taste: qualityText,
-        timestamp: new Date().toLocaleString()
-      };
-
-      localStorage.setItem('lastEspresso', JSON.stringify(log));
-    } else {
-      result.innerHTML = "Please enter a coffee dose.";
-    }
-
-    const last = JSON.parse(localStorage.getItem('lastEspresso'));
-    if (last && history) {
-      history.innerHTML = `
-        <strong>Previous Espresso:</strong><br>
-        Dose: ${last.dose}g<br>
-        Ratio: 1:${last.ratio}<br>
-        Target Yield: ${last.targetYield}g<br>
-        Actual: ${last.actual}g<br>
-        Time: ${last.time}s<br>
-        Taste: ${last.taste}<br>
-        Logged: ${last.timestamp}
-      `;
-    }
-  };
-});
+      const targetYield = dose * ratio*
