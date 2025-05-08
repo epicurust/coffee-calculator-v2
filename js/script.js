@@ -1,106 +1,121 @@
-const greeting = document.getElementById('greeting');
-const nameInput = document.getElementById('nameInput');
-const startButton = document.getElementById('startButton');
-const introImage = document.getElementById('introImage');
-const imageContainer = document.getElementById('imageContainer');
-const iconSection = document.getElementById('iconSection');
-const filterSection = document.getElementById('filter');
-const espressoSection = document.getElementById('espresso');
-const backButton = document.getElementById('backButton');
-const darkModeToggle = document.getElementById('darkModeToggle');
+document.addEventListener('DOMContentLoaded', () => {
+  const greeting = document.getElementById('greeting');
+  const nameInput = document.getElementById('nameInput');
+  const startButton = document.getElementById('startButton');
 
-let userName = "";
+  const qualitySlider = document.getElementById('shotQuality');
+  const qualityLabel = document.getElementById('qualityLabel');
 
-const hour = new Date().getHours();
-if (hour < 12) {
-  introImage.src = "https://img.freepik.com/premium-vector/morning-coffee_925452-21.jpg";
-} else if (hour < 18) {
-  introImage.src = "https://images.template.net/182120/coffee-vector-edit-online.jpg";
-} else {
-  introImage.src = "https://img.freepik.com/premium-vector/coffee-mug-night-illustration_188544-5097.jpg";
-}
+  // Greeting Logic
+  startButton?.addEventListener('click', () => {
+    const name = nameInput?.value.trim();
+    if (!name) return;
+    const hour = new Date().getHours();
+    const timeGreeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    greeting.innerHTML = `<span class="caps-title">${timeGreeting.toUpperCase()}</span><h1 class="script-title">${name}</h1>`;
+  });
 
-startButton.addEventListener('click', () => {
-  const name = nameInput.value.trim();
-  if (!name) return;
-  userName = name;
-  greeting.textContent = `Hello, ${userName}!`;
+  // Update taste rating label
+  qualitySlider?.addEventListener('input', () => {
+    const val = parseInt(qualitySlider.value);
+    qualityLabel.textContent = val === 1 ? 'Sour' : val === 3 ? 'Bitter' : 'Balanced';
+  });
 
-  introImage.classList.add('fade-out');
+  // Filter Calculator
+  window.calculateFilter = function () {
+    const coffee = parseFloat(document.getElementById('filterCoffee').value);
+    const water = parseFloat(document.getElementById('filterWater').value);
+    const people = parseFloat(document.getElementById('filterPeople').value);
+    const customRatio = document.getElementById('customRatio');
+    const useCustom = document.getElementById('useCustomRatio').checked;
+    const flavour = document.getElementById('flavourProfile').value;
+    const result = document.getElementById('filterResult');
+    const history = document.getElementById('filterHistory');
 
-  introImage.addEventListener('transitionend', () => {
-    imageContainer.style.display = 'none';
-    iconSection.classList.remove('hidden');
-    iconSection.classList.add('visible');
-  }, { once: true });
+    let ratio = 60;
+    if (useCustom && customRatio.value) {
+      ratio = parseFloat(customRatio.value);
+    } else {
+      if (flavour === 'light') ratio = 55;
+      if (flavour === 'balanced') ratio = 60;
+      if (flavour === 'syrupy') ratio = 65;
+      if (flavour === 'bold') ratio = 70;
+    }
 
-  nameInput.style.display = 'none';
-  startButton.style.display = 'none';
+    let output = '';
+
+    if (!isNaN(people)) {
+      const targetYield = people * 250;
+      const totalWater = targetYield / 0.7;
+      const neededCoffee = totalWater * (ratio / 1000);
+      output = `For ${people} people: use ${neededCoffee.toFixed(1)}g coffee and ${totalWater.toFixed(0)}g water.`;
+    } else if (!isNaN(coffee)) {
+      const totalWater = (coffee / ratio) * 1000;
+      const yieldInCup = totalWater - (coffee * 2);
+      output = `With ${coffee}g coffee: use ${totalWater.toFixed(0)}g water. Yield: ${yieldInCup.toFixed(0)}g.`;
+    } else if (!isNaN(water)) {
+      const neededCoffee = (water / 1000) * ratio;
+      const yieldInCup = water - (neededCoffee * 2);
+      output = `With ${water}g water: use ${neededCoffee.toFixed(1)}g coffee. Yield: ${yieldInCup.toFixed(0)}g.`;
+    } else {
+      output = "Please enter coffee, water, or number of people.";
+    }
+
+    result.innerHTML = output + "<br><em>Enjoy your coffee!</em>";
+    const now = new Date().toLocaleTimeString();
+    history.innerHTML += `<div>🕓 ${now} – ${output}</div>`;
+    localStorage.setItem('lastBrew', JSON.stringify({ output, time: now }));
+  };
+
+  // Espresso Calculator
+  window.calculateEspresso = function () {
+    const dose = parseFloat(document.getElementById('espressoDose').value);
+    const ratio = parseFloat(document.getElementById('espressoRatio').value);
+    const time = parseFloat(document.getElementById('espressoTime').value);
+    const yieldActual = parseFloat(document.getElementById('espressoYield').value);
+    const quality = parseInt(document.getElementById('shotQuality').value);
+    const qualityText = quality === 1 ? "Sour" : quality === 3 ? "Bitter" : "Balanced";
+    const result = document.getElementById('espressoResult');
+    const history = document.getElementById('previousEspresso');
+
+    if (!isNaN(dose)) {
+      const targetYield = dose * ratio;
+      let output = `Target yield: ${targetYield.toFixed(1)}g.`;
+      if (!isNaN(time)) output += ` Shot time: ${time}s.`;
+      if (!isNaN(yieldActual)) {
+        const diff = yieldActual - targetYield;
+        output += ` Actual: ${yieldActual}g. Diff: ${diff >= 0 ? '+' : ''}${diff.toFixed(1)}g.`;
+      }
+      output += ` Taste: ${qualityText}.`;
+      result.innerHTML = output + "<br><em>Enjoy your espresso!</em>";
+
+      const log = {
+        dose,
+        ratio,
+        targetYield: targetYield.toFixed(1),
+        actual: yieldActual || 'N/A',
+        time: time || 'N/A',
+        taste: qualityText,
+        timestamp: new Date().toLocaleString()
+      };
+
+      localStorage.setItem('lastEspresso', JSON.stringify(log));
+    } else {
+      result.innerHTML = "Please enter a coffee dose.";
+    }
+
+    const last = JSON.parse(localStorage.getItem('lastEspresso'));
+    if (last && history) {
+      history.innerHTML = `
+        <strong>Previous Espresso:</strong><br>
+        Dose: ${last.dose}g<br>
+        Ratio: 1:${last.ratio}<br>
+        Target Yield: ${last.targetYield}g<br>
+        Actual: ${last.actual}g<br>
+        Time: ${last.time}s<br>
+        Taste: ${last.taste}<br>
+        Logged: ${last.timestamp}
+      `;
+    }
+  };
 });
-
-document.getElementById('filterIcon').addEventListener('click', () => {
-  iconSection.classList.remove('visible');
-  filterSection.classList.remove('hidden');
-  filterSection.classList.add('visible');
-  backButton.classList.remove('hidden');
-});
-
-document.getElementById('espressoIcon').addEventListener('click', () => {
-  iconSection.classList.remove('visible');
-  espressoSection.classList.remove('hidden');
-  espressoSection.classList.add('visible');
-  backButton.classList.remove('hidden');
-});
-
-backButton.addEventListener('click', () => {
-  filterSection.classList.remove('visible');
-  espressoSection.classList.remove('visible');
-  iconSection.classList.add('visible');
-  backButton.classList.add('hidden');
-});
-
-darkModeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-});
-
-function calculateFilter() {
-  const coffee = parseFloat(document.getElementById('filterCoffee').value);
-  const water = parseFloat(document.getElementById('filterWater').value);
-  const people = parseFloat(document.getElementById('filterPeople').value);
-  const ratio = parseFloat(document.getElementById('filterRatio').value);
-  const result = document.getElementById('filterResult');
-
-  let output = "";
-
-  if (!isNaN(people)) {
-    const targetYield = people * 250;
-    const totalWater = targetYield / 0.7;
-    const neededCoffee = totalWater * (ratio / 1000);
-    output = `Hey ${userName}, for ${people} people: use ${neededCoffee.toFixed(1)}g coffee and ${totalWater.toFixed(0)}g water.`;
-  } else if (!isNaN(coffee)) {
-    const totalWater = (coffee / ratio) * 1000;
-    const yieldInCup = totalWater - (coffee * 2);
-    output = `Hey ${userName}, with ${coffee}g coffee: use ${totalWater.toFixed(0)}g water. Estimated in-cup yield: ${yieldInCup.toFixed(0)}g.`;
-  } else if (!isNaN(water)) {
-    const neededCoffee = (water / 1000) * ratio;
-    const yieldInCup = water - (neededCoffee * 2);
-    output = `Hey ${userName}, with ${water}g water: use ${neededCoffee.toFixed(1)}g coffee. Estimated in-cup yield: ${yieldInCup.toFixed(0)}g.`;
-  } else {
-    output = "Please enter coffee, water, or number of people.";
-  }
-
-  result.innerHTML = output + "<br><em>Enjoy your coffee!</em>";
-}
-
-function calculateEspresso() {
-  const dose = parseFloat(document.getElementById('espressoDose').value);
-  const ratio = parseFloat(document.getElementById('espressoRatio').value);
-  const result = document.getElementById('espressoResult');
-
-  if (!isNaN(dose)) {
-    const yieldAmount = dose * ratio;
-    result.innerHTML = `Hey ${userName}, your target yield is ${yieldAmount.toFixed(1)}g.<br><em>Enjoy your coffee!</em>`;
-  } else {
-    result.innerHTML = "Please enter a coffee dose.";
-  }
-}
